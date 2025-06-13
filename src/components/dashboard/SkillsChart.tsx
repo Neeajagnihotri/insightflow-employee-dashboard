@@ -23,7 +23,7 @@ export const SkillsChart = ({ data }: SkillsChartProps) => {
   const chartData = Object.entries(skillsCount)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 8)
-    .map(([skill, count]) => ({ skill, count }));
+    .map(([skill, count], index) => ({ skill, count, id: `skill-${index}` }));
 
   return (
     <Card className="bg-white/70 backdrop-blur-lg border-white/30 hover:bg-white/80 transition-all duration-300">
