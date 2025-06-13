@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { PMODashboard } from '@/components/PMODashboard';
+import { RMSDashboard } from '@/components/RMSDashboard';
 
 const Index = () => {
-  return <PMODashboard />;
+  return <RMSDashboard />;
 };
 
 export default Index;

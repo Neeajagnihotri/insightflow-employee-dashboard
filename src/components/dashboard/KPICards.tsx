@@ -1,142 +1,87 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Users, Briefcase, UserX, UserCheck, GraduationCap } from 'lucide-react';
-import { EmployeeData } from '@/types/employee';
+import { Users, UserCheck, UserX, GraduationCap, TrendingUp, TrendingDown } from 'lucide-react';
+import { ResourceData } from '@/types/resource';
 
 interface KPICardsProps {
-  data: EmployeeData[];
+  data: ResourceData[];
 }
 
 export const KPICards = ({ data }: KPICardsProps) => {
-  const [animatedValues, setAnimatedValues] = useState({
-    total: 0,
-    billable: 0,
-    benched: 0,
-    shadow: 0,
-    interns: 0,
-  });
+  const totalResources = data.length;
+  const availableResources = data.filter(r => r.status === 'Available').length;
+  const assignedResources = data.filter(r => r.status === 'Assigned').length;
+  const onLeaveResources = data.filter(r => r.status === 'On Leave').length;
+  const inTrainingResources = data.filter(r => r.status === 'Training').length;
+  const averageUtilization = Math.round(data.reduce((sum, r) => sum + r.utilizationRate, 0) / data.length);
 
-  const kpis = {
-    total: data.length,
-    billable: data.filter(emp => emp.status === 'Billable').length,
-    benched: data.filter(emp => emp.status === 'Benched').length,
-    shadow: data.filter(emp => emp.status === 'Shadow').length,
-    interns: data.filter(emp => emp.status === 'Intern').length,
-  };
-
-  useEffect(() => {
-    const duration = 1000;
-    const steps = 60;
-    const stepTime = duration / steps;
-
-    Object.keys(kpis).forEach((key) => {
-      const targetValue = kpis[key as keyof typeof kpis];
-      let currentStep = 0;
-
-      const timer = setInterval(() => {
-        currentStep++;
-        const progress = currentStep / steps;
-        const easedProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
-        const currentValue = Math.round(targetValue * easedProgress);
-
-        setAnimatedValues(prev => ({
-          ...prev,
-          [key]: currentValue
-        }));
-
-        if (currentStep >= steps) {
-          clearInterval(timer);
-        }
-      }, stepTime);
-    });
-  }, [data]);
-
-  const cards = [
+  const kpis = [
     {
-      title: 'Total Employees',
-      value: animatedValues.total,
-      target: kpis.total,
+      title: 'Total Resources',
+      value: totalResources,
+      change: 12,
       icon: Users,
-      trend: '+5.2%',
-      trendPositive: true,
       color: 'from-blue-500 to-blue-600',
-      bgColor: 'from-blue-50 to-blue-100',
+      bgColor: 'bg-blue-50'
     },
     {
-      title: 'Billable',
-      value: animatedValues.billable,
-      target: kpis.billable,
-      icon: Briefcase,
-      trend: '+8.1%',
-      trendPositive: true,
-      color: 'from-green-500 to-green-600',
-      bgColor: 'from-green-50 to-green-100',
-    },
-    {
-      title: 'Benched',
-      value: animatedValues.benched,
-      target: kpis.benched,
-      icon: UserX,
-      trend: '-3.4%',
-      trendPositive: false,
-      color: 'from-orange-500 to-orange-600',
-      bgColor: 'from-orange-50 to-orange-100',
-    },
-    {
-      title: 'Shadow',
-      value: animatedValues.shadow,
-      target: kpis.shadow,
+      title: 'Available',
+      value: availableResources,
+      change: -5,
       icon: UserCheck,
-      trend: '+12.3%',
-      trendPositive: true,
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'from-purple-50 to-purple-100',
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50'
     },
     {
-      title: 'Interns',
-      value: animatedValues.interns,
-      target: kpis.interns,
-      icon: GraduationCap,
-      trend: '+25.7%',
-      trendPositive: true,
-      color: 'from-pink-500 to-pink-600',
-      bgColor: 'from-pink-50 to-pink-100',
+      title: 'Assigned',
+      value: assignedResources,
+      change: 8,
+      icon: UserX,
+      color: 'from-amber-500 to-amber-600',
+      bgColor: 'bg-amber-50'
     },
+    {
+      title: 'In Training',
+      value: inTrainingResources,
+      change: 3,
+      icon: GraduationCap,
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-50'
+    },
+    {
+      title: 'Avg Utilization',
+      value: `${averageUtilization}%`,
+      change: 2.5,
+      icon: TrendingUp,
+      color: 'from-indigo-500 to-indigo-600',
+      bgColor: 'bg-indigo-50'
+    }
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-      {cards.map((card, index) => (
-        <Card 
-          key={card.title}
-          className="backdrop-blur-lg bg-white/40 border-white/20 hover:bg-white/50 transition-all duration-300 hover:scale-105 hover:shadow-xl animate-fade-in"
-          style={{ animationDelay: `${index * 100}ms` }}
-        >
+      {kpis.map((kpi, index) => (
+        <Card key={index} className="bg-white/70 backdrop-blur-lg border-white/30 hover:bg-white/80 transition-all duration-300 group hover:scale-105">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${card.bgColor}`}>
-                <card.icon className={`h-6 w-6 bg-gradient-to-r ${card.color} bg-clip-text text-transparent`} />
+              <div className={`p-3 rounded-xl ${kpi.bgColor}`}>
+                <kpi.icon className={`h-6 w-6 bg-gradient-to-r ${kpi.color} bg-clip-text text-transparent`} />
               </div>
-              <div className={`text-sm font-medium ${card.trendPositive ? 'text-green-600' : 'text-red-600'}`}>
-                {card.trend}
+              <div className="flex items-center gap-1">
+                {kpi.change > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm font-medium ${kpi.change > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {Math.abs(kpi.change)}%
+                </span>
               </div>
             </div>
-            
             <div className="mt-4">
-              <div className="text-2xl font-bold text-gray-900">
-                {card.value.toLocaleString()}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                {card.title}
-              </div>
-            </div>
-            
-            <div className="mt-3 bg-gray-200 rounded-full h-2">
-              <div 
-                className={`h-2 rounded-full bg-gradient-to-r ${card.color} transition-all duration-1000`}
-                style={{ width: `${(card.value / card.target) * 100}%` }}
-              />
+              <p className="text-2xl font-bold text-slate-800">{kpi.value}</p>
+              <p className="text-sm text-slate-600 mt-1">{kpi.title}</p>
             </div>
           </CardContent>
         </Card>
