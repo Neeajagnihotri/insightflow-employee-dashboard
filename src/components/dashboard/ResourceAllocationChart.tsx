@@ -6,9 +6,10 @@ import { ResourceData } from '@/types/resource';
 
 interface ResourceAllocationChartProps {
   data: ResourceData[];
+  isDarkMode?: boolean;
 }
 
-export const ResourceAllocationChart = ({ data }: ResourceAllocationChartProps) => {
+export const ResourceAllocationChart = ({ data, isDarkMode = false }: ResourceAllocationChartProps) => {
   const chartData = data.reduce((acc, resource) => {
     const dept = resource.department;
     if (!acc[dept]) {
@@ -21,28 +22,35 @@ export const ResourceAllocationChart = ({ data }: ResourceAllocationChartProps) 
   const formattedData = Object.values(chartData);
 
   return (
-    <Card className="bg-white/70 backdrop-blur-lg border-white/30 hover:bg-white/80 transition-all duration-300">
+    <Card className={`${
+      isDarkMode ? 'bg-gray-800/70' : 'bg-white/70'
+    } backdrop-blur-lg border-white/30 hover:${
+      isDarkMode ? 'bg-gray-700/80' : 'bg-white/80'
+    } transition-all duration-300`}>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+        <CardTitle className={`text-lg font-semibold ${
+          isDarkMode ? 'text-white' : 'text-slate-800'
+        } flex items-center gap-2`}>
           Resource Allocation by Department
         </CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={formattedData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e2e8f0'} />
             <XAxis 
               dataKey="department" 
-              stroke="#64748b"
+              stroke={isDarkMode ? '#9CA3AF' : '#64748b'}
               fontSize={12}
             />
-            <YAxis stroke="#64748b" fontSize={12} />
+            <YAxis stroke={isDarkMode ? '#9CA3AF' : '#64748b'} fontSize={12} />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backgroundColor: isDarkMode ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
                 borderRadius: '12px',
-                border: '1px solid rgba(226, 232, 240, 0.5)',
-                backdropFilter: 'blur(10px)'
+                border: `1px solid ${isDarkMode ? 'rgba(75, 85, 99, 0.5)' : 'rgba(226, 232, 240, 0.5)'}`,
+                backdropFilter: 'blur(10px)',
+                color: isDarkMode ? '#F9FAFB' : '#1F2937'
               }}
             />
             <Legend />

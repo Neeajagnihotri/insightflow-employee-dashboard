@@ -16,9 +16,10 @@ interface FilterPanelProps {
   };
   onFiltersChange: (filters: any) => void;
   resourceData: ResourceData[];
+  isDarkMode: boolean;
 }
 
-export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPanelProps) => {
+export const FilterPanel = ({ filters, onFiltersChange, resourceData, isDarkMode }: FilterPanelProps) => {
   const departments = [...new Set(resourceData.map(r => r.department))];
   const statuses = [...new Set(resourceData.map(r => r.status))];
   const experiences = [...new Set(resourceData.map(r => r.experience))];
@@ -36,9 +37,13 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
   const hasActiveFilters = Object.values(filters).some(value => value !== '');
 
   return (
-    <Card className="bg-white/70 backdrop-blur-lg border-white/30 sticky top-6">
+    <Card className={`${
+      isDarkMode ? 'bg-gray-800/70' : 'bg-white/70'
+    } backdrop-blur-lg border-white/30 sticky top-6`}>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+        <CardTitle className={`text-lg font-semibold ${
+          isDarkMode ? 'text-white' : 'text-slate-800'
+        } flex items-center gap-2`}>
           <Filter className="h-5 w-5" />
           Filters
           {hasActiveFilters && (
@@ -46,7 +51,7 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
               variant="ghost"
               size="sm"
               onClick={clearFilters}
-              className="ml-auto h-6 w-6 p-0 hover:bg-red-100"
+              className="ml-auto h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
             >
               <X className="h-4 w-4 text-red-500" />
             </Button>
@@ -55,22 +60,34 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+          <Search className={`absolute left-3 top-3 h-4 w-4 ${
+            isDarkMode ? 'text-gray-400' : 'text-slate-400'
+          }`} />
           <Input
             placeholder="Search resources..."
             value={filters.search}
             onChange={(e) => updateFilter('search', e.target.value)}
-            className="pl-10 bg-white/50 border-white/30"
+            className={`pl-10 ${
+              isDarkMode 
+                ? 'bg-gray-700/50 border-gray-600/30 text-white placeholder:text-gray-400' 
+                : 'bg-white/50 border-white/30'
+            }`}
           />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700 mb-2 block">Department</label>
+          <label className={`text-sm font-medium ${
+            isDarkMode ? 'text-gray-200' : 'text-slate-700'
+          } mb-2 block`}>Department</label>
           <Select value={filters.department || 'all'} onValueChange={(value) => updateFilter('department', value)}>
-            <SelectTrigger className="bg-white/50 border-white/30">
+            <SelectTrigger className={`${
+              isDarkMode 
+                ? 'bg-gray-700/50 border-gray-600/30 text-white' 
+                : 'bg-white/50 border-white/30'
+            }`}>
               <SelectValue placeholder="All Departments" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-700' : ''}>
               <SelectItem value="all">All Departments</SelectItem>
               {departments.map((dept) => (
                 <SelectItem key={dept} value={dept}>{dept}</SelectItem>
@@ -80,12 +97,18 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700 mb-2 block">Status</label>
+          <label className={`text-sm font-medium ${
+            isDarkMode ? 'text-gray-200' : 'text-slate-700'
+          } mb-2 block`}>Status</label>
           <Select value={filters.status || 'all'} onValueChange={(value) => updateFilter('status', value)}>
-            <SelectTrigger className="bg-white/50 border-white/30">
+            <SelectTrigger className={`${
+              isDarkMode 
+                ? 'bg-gray-700/50 border-gray-600/30 text-white' 
+                : 'bg-white/50 border-white/30'
+            }`}>
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-700' : ''}>
               <SelectItem value="all">All Statuses</SelectItem>
               {statuses.map((status) => (
                 <SelectItem key={status} value={status}>{status}</SelectItem>
@@ -95,12 +118,18 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700 mb-2 block">Experience</label>
+          <label className={`text-sm font-medium ${
+            isDarkMode ? 'text-gray-200' : 'text-slate-700'
+          } mb-2 block`}>Experience</label>
           <Select value={filters.experience || 'all'} onValueChange={(value) => updateFilter('experience', value)}>
-            <SelectTrigger className="bg-white/50 border-white/30">
+            <SelectTrigger className={`${
+              isDarkMode 
+                ? 'bg-gray-700/50 border-gray-600/30 text-white' 
+                : 'bg-white/50 border-white/30'
+            }`}>
               <SelectValue placeholder="All Levels" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-700' : ''}>
               <SelectItem value="all">All Levels</SelectItem>
               {experiences.map((exp) => (
                 <SelectItem key={exp} value={exp}>{exp}</SelectItem>
@@ -110,8 +139,12 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
         </div>
 
         {hasActiveFilters && (
-          <div className="pt-2 border-t border-white/30">
-            <p className="text-xs text-slate-500">
+          <div className={`pt-2 border-t ${
+            isDarkMode ? 'border-gray-600/30' : 'border-white/30'
+          }`}>
+            <p className={`text-xs ${
+              isDarkMode ? 'text-gray-400' : 'text-slate-500'
+            }`}>
               Showing {resourceData.filter(r => {
                 if (filters.department && r.department !== filters.department) return false;
                 if (filters.status && r.status !== filters.status) return false;
