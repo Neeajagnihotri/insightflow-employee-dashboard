@@ -10,9 +10,10 @@ import { ResourceData } from '@/types/resource';
 
 interface ResourceTableProps {
   data: ResourceData[];
+  isDarkMode?: boolean;
 }
 
-export const ResourceTable = ({ data }: ResourceTableProps) => {
+export const ResourceTable = ({ data, isDarkMode = false }: ResourceTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -43,9 +44,13 @@ export const ResourceTable = ({ data }: ResourceTableProps) => {
   };
 
   return (
-    <Card className="bg-white/70 backdrop-blur-lg border-white/30">
+    <Card className={`${
+      isDarkMode ? 'bg-gray-800/70' : 'bg-white/70'
+    } backdrop-blur-lg border-white/30`}>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-slate-800">
+        <CardTitle className={`text-lg font-semibold ${
+          isDarkMode ? 'text-white' : 'text-slate-800'
+        }`}>
           Resource Directory ({data.length} resources)
         </CardTitle>
       </CardHeader>
@@ -54,19 +59,21 @@ export const ResourceTable = ({ data }: ResourceTableProps) => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Resource</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Experience</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Utilization</TableHead>
-                <TableHead>Skills</TableHead>
-                <TableHead>Location</TableHead>
+                <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Resource</TableHead>
+                <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Role</TableHead>
+                <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Department</TableHead>
+                <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Experience</TableHead>
+                <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Status</TableHead>
+                <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Utilization</TableHead>
+                <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Skills</TableHead>
+                <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Location</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedData.map((resource) => (
-                <TableRow key={resource.id} className="hover:bg-white/50 transition-colors">
+                <TableRow key={resource.id} className={`hover:${
+                  isDarkMode ? 'bg-gray-700/50' : 'bg-white/50'
+                } transition-colors`}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
@@ -75,13 +82,21 @@ export const ResourceTable = ({ data }: ResourceTableProps) => {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium text-sm">{resource.name}</p>
-                        <p className="text-xs text-slate-500">{resource.email}</p>
+                        <p className={`font-medium text-sm ${
+                          isDarkMode ? 'text-white' : 'text-gray-900'
+                        }`}>{resource.name}</p>
+                        <p className={`text-xs ${
+                          isDarkMode ? 'text-gray-400' : 'text-slate-500'
+                        }`}>{resource.email}</p>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium text-sm">{resource.role}</TableCell>
-                  <TableCell className="text-sm">{resource.department}</TableCell>
+                  <TableCell className={`font-medium text-sm ${
+                    isDarkMode ? 'text-gray-200' : 'text-gray-900'
+                  }`}>{resource.role}</TableCell>
+                  <TableCell className={`text-sm ${
+                    isDarkMode ? 'text-gray-200' : 'text-gray-900'
+                  }`}>{resource.department}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={`text-xs ${getExperienceColor(resource.experience)}`}>
                       {resource.experience}
@@ -100,7 +115,9 @@ export const ResourceTable = ({ data }: ResourceTableProps) => {
                           style={{ width: `${resource.utilizationRate}%` }}
                         />
                       </div>
-                      <span className="text-xs font-medium">{resource.utilizationRate}%</span>
+                      <span className={`text-xs font-medium ${
+                        isDarkMode ? 'text-gray-200' : 'text-gray-900'
+                      }`}>{resource.utilizationRate}%</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -117,7 +134,9 @@ export const ResourceTable = ({ data }: ResourceTableProps) => {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm">{resource.location}</TableCell>
+                  <TableCell className={`text-sm ${
+                    isDarkMode ? 'text-gray-200' : 'text-gray-900'
+                  }`}>{resource.location}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -126,7 +145,9 @@ export const ResourceTable = ({ data }: ResourceTableProps) => {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4">
-            <p className="text-sm text-slate-600">
+            <p className={`text-sm ${
+              isDarkMode ? 'text-gray-300' : 'text-slate-600'
+            }`}>
               Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, data.length)} of {data.length} resources
             </p>
             <div className="flex items-center gap-2">
@@ -135,11 +156,19 @@ export const ResourceTable = ({ data }: ResourceTableProps) => {
                 size="sm"
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="bg-white/60 hover:bg-white/80 border-white/30"
+                className={`${
+                  isDarkMode 
+                    ? 'bg-gray-700/60 hover:bg-gray-600/80 border-gray-600/30 text-gray-200' 
+                    : 'bg-white/60 hover:bg-white/80 border-white/30'
+                }`}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm font-medium px-3 py-1 bg-white/60 rounded border border-white/30">
+              <span className={`text-sm font-medium px-3 py-1 ${
+                isDarkMode 
+                  ? 'bg-gray-700/60 border-gray-600/30 text-gray-200' 
+                  : 'bg-white/60 border-white/30'
+              } rounded border`}>
                 {currentPage} of {totalPages}
               </span>
               <Button
@@ -147,7 +176,11 @@ export const ResourceTable = ({ data }: ResourceTableProps) => {
                 size="sm"
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="bg-white/60 hover:bg-white/80 border-white/30"
+                className={`${
+                  isDarkMode 
+                    ? 'bg-gray-700/60 hover:bg-gray-600/80 border-gray-600/30 text-gray-200' 
+                    : 'bg-white/60 hover:bg-white/80 border-white/30'
+                }`}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>

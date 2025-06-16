@@ -13,6 +13,7 @@ import { ResourceData } from '@/types/resource';
 export const PMODashboard = () => {
   const [resourceData, setResourceData] = useState<ResourceData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const loadData = () => {
@@ -42,19 +43,23 @@ export const PMODashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-        <DashboardHeader />
+        <DashboardHeader 
+          isDarkMode={isDarkMode}
+          onDarkModeToggle={() => setIsDarkMode(!isDarkMode)}
+          onRefresh={() => window.location.reload()}
+        />
         
-        <KPICards data={resourceData} />
+        <KPICards data={resourceData} isDarkMode={isDarkMode} />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ResourceAllocationChart data={resourceData} />
-          <UtilizationChart data={resourceData} />
+          <ResourceAllocationChart data={resourceData} isDarkMode={isDarkMode} />
+          <UtilizationChart data={resourceData} isDarkMode={isDarkMode} />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <DepartmentChart data={resourceData} />
-          <SkillsChart data={resourceData} />
-          <ProjectTimelineChart data={resourceData} />
+          <DepartmentChart data={resourceData} isDarkMode={isDarkMode} />
+          <SkillsChart data={resourceData} isDarkMode={isDarkMode} />
+          <ProjectTimelineChart data={resourceData} isDarkMode={isDarkMode} />
         </div>
       </div>
     </div>
