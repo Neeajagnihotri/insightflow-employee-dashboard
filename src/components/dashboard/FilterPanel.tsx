@@ -24,7 +24,9 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
   const experiences = [...new Set(resourceData.map(r => r.experience))];
 
   const updateFilter = (key: string, value: string) => {
-    onFiltersChange({ ...filters, [key]: value });
+    // Convert "all" values back to empty strings for filtering logic
+    const filterValue = value === 'all' ? '' : value;
+    onFiltersChange({ ...filters, [key]: filterValue });
   };
 
   const clearFilters = () => {
@@ -64,12 +66,12 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
 
         <div>
           <label className="text-sm font-medium text-slate-700 mb-2 block">Department</label>
-          <Select value={filters.department} onValueChange={(value) => updateFilter('department', value)}>
+          <Select value={filters.department || 'all'} onValueChange={(value) => updateFilter('department', value)}>
             <SelectTrigger className="bg-white/50 border-white/30">
               <SelectValue placeholder="All Departments" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Departments</SelectItem>
+              <SelectItem value="all">All Departments</SelectItem>
               {departments.map((dept) => (
                 <SelectItem key={dept} value={dept}>{dept}</SelectItem>
               ))}
@@ -79,12 +81,12 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
 
         <div>
           <label className="text-sm font-medium text-slate-700 mb-2 block">Status</label>
-          <Select value={filters.status} onValueChange={(value) => updateFilter('status', value)}>
+          <Select value={filters.status || 'all'} onValueChange={(value) => updateFilter('status', value)}>
             <SelectTrigger className="bg-white/50 border-white/30">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               {statuses.map((status) => (
                 <SelectItem key={status} value={status}>{status}</SelectItem>
               ))}
@@ -94,12 +96,12 @@ export const FilterPanel = ({ filters, onFiltersChange, resourceData }: FilterPa
 
         <div>
           <label className="text-sm font-medium text-slate-700 mb-2 block">Experience</label>
-          <Select value={filters.experience} onValueChange={(value) => updateFilter('experience', value)}>
+          <Select value={filters.experience || 'all'} onValueChange={(value) => updateFilter('experience', value)}>
             <SelectTrigger className="bg-white/50 border-white/30">
               <SelectValue placeholder="All Levels" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Levels</SelectItem>
+              <SelectItem value="all">All Levels</SelectItem>
               {experiences.map((exp) => (
                 <SelectItem key={exp} value={exp}>{exp}</SelectItem>
               ))}
