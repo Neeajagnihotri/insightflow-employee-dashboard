@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { KPICards } from './dashboard/KPICards';
@@ -32,7 +31,7 @@ export const RMSDashboard = () => {
   });
   const { toast } = useToast();
 
-  // Real-time data updates
+  // Real-time data updates with 24-hour refresh cycle
   useEffect(() => {
     const loadData = () => {
       setIsLoading(true);
@@ -52,9 +51,25 @@ export const RMSDashboard = () => {
     };
 
     loadData();
-    // Real-time updates every 30 seconds
-    const interval = setInterval(loadData, 30000);
-    return () => clearInterval(interval);
+    
+    // Real-time updates every 30 seconds for demo
+    const realTimeInterval = setInterval(loadData, 30000);
+    
+    // Full refresh every 24 hours
+    const dailyRefreshInterval = setInterval(() => {
+      console.log('Performing 24-hour data refresh...');
+      loadData();
+      toast({
+        title: "Daily Refresh Complete",
+        description: "System has been refreshed with the latest data from all sources",
+        duration: 5000,
+      });
+    }, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+
+    return () => {
+      clearInterval(realTimeInterval);
+      clearInterval(dailyRefreshInterval);
+    };
   }, [toast]);
 
   // Apply filters
@@ -120,7 +135,10 @@ export const RMSDashboard = () => {
         <DashboardHeader 
           isDarkMode={isDarkMode} 
           onDarkModeToggle={() => setIsDarkMode(!isDarkMode)}
-          onRefresh={() => window.location.reload()}
+          onRefresh={() => {
+            console.log('Manual refresh triggered');
+            window.location.reload();
+          }}
         />
         
         <RealTimeIndicator lastUpdated={lastUpdated} isDarkMode={isDarkMode} />
