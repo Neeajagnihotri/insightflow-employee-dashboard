@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Users, UserCheck, UserX, GraduationCap, TrendingUp, TrendingDown, Clock, BarChart3 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Users, UserCheck, UserX, GraduationCap, TrendingUp, TrendingDown, Clock, BarChart3, FileSpreadsheet, Download } from 'lucide-react';
 import { ResourceData } from '@/types/resource';
 import { useToast } from '@/hooks/use-toast';
 import { AnalyticsModal } from './AnalyticsModal';
@@ -8,9 +10,10 @@ import { AnalyticsModal } from './AnalyticsModal';
 interface KPICardsProps {
   data: ResourceData[];
   isDarkMode: boolean;
+  onDataImport?: () => void;
 }
 
-export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
+export const KPICards = ({ data, isDarkMode, onDataImport }: KPICardsProps) => {
   const { toast } = useToast();
   const [selectedAnalytics, setSelectedAnalytics] = useState<{title: string, data: any} | null>(null);
   
@@ -34,6 +37,45 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
     });
   };
 
+  const handleDataImport = () => {
+    toast({
+      title: "Data Import",
+      description: "Excel data import functionality triggered",
+      duration: 2000,
+    });
+    onDataImport?.();
+  };
+
+  const handleExportData = (kpiTitle: string) => {
+    const exportData = {
+      title: kpiTitle,
+      timestamp: new Date().toISOString(),
+      data: data.filter(r => {
+        switch (kpiTitle) {
+          case 'Available': return r.status === 'Available';
+          case 'Assigned': return r.status === 'Assigned';
+          case 'In Training': return r.status === 'Training';
+          default: return true;
+        }
+      })
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${kpiTitle}_data_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Data Exported",
+      description: `${kpiTitle} data has been exported successfully`,
+      duration: 2000,
+    });
+  };
+
   const kpis = [
     {
       title: 'Total Resources',
@@ -43,7 +85,6 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
       color: 'from-blue-500 to-blue-600',
       bgColor: isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50',
       description: 'Active employees',
-      image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=300&fit=crop',
       analytics: {
         departments: data.reduce((acc, r) => {
           acc[r.department] = (acc[r.department] || 0) + 1;
@@ -61,7 +102,6 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
       color: 'from-green-500 to-green-600',
       bgColor: isDarkMode ? 'bg-green-900/30' : 'bg-green-50',
       description: 'Ready for assignment',
-      image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop',
       analytics: {
         byDepartment: data.filter(r => r.status === 'Available').reduce((acc, r) => {
           acc[r.department] = (acc[r.department] || 0) + 1;
@@ -79,7 +119,6 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
       color: 'from-amber-500 to-amber-600',
       bgColor: isDarkMode ? 'bg-amber-900/30' : 'bg-amber-50',
       description: 'Currently working',
-      image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop',
       analytics: {
         projects: data.filter(r => r.status === 'Assigned').length,
         utilizationRate: `${averageUtilization}%`,
@@ -95,7 +134,6 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
       color: 'from-purple-500 to-purple-600',
       bgColor: isDarkMode ? 'bg-purple-900/30' : 'bg-purple-50',
       description: 'Skill development',
-      image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop',
       analytics: {
         completionRate: '87%',
         skillsImproved: ['React', 'TypeScript', 'Node.js'],
@@ -111,7 +149,6 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
       color: 'from-indigo-500 to-indigo-600',
       bgColor: isDarkMode ? 'bg-indigo-900/30' : 'bg-indigo-50',
       description: 'Resource efficiency',
-      image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=300&fit=crop',
       analytics: {
         efficiency: 'Optimal',
         benchmark: '85%',
@@ -127,7 +164,6 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
       color: 'from-rose-500 to-rose-600',
       bgColor: isDarkMode ? 'bg-rose-900/30' : 'bg-rose-50',
       description: 'Average rating',
-      image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=300&fit=crop',
       analytics: {
         rating: averagePerformance,
         topPerformers: data.filter(r => r.performanceRating >= 4.5).length,
@@ -139,22 +175,41 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
 
   return (
     <>
+      {/* Data Import Section */}
+      <div className="mb-6">
+        <Card className={`${
+          isDarkMode ? 'bg-gray-800/70' : 'bg-white/70'
+        } backdrop-blur-lg border-white/30`}>
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-1">Data Management</h3>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-slate-600'}`}>
+                  Import data from Excel sheets or export current data
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleDataImport} variant="outline" size="sm">
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  Import Excel
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         {kpis.map((kpi, index) => (
           <Card 
             key={index} 
-            onClick={() => handleKPIClick(kpi.title, kpi.value, kpi.analytics)}
             className={`${
               isDarkMode ? 'bg-gray-800/70' : 'bg-white/70'
             } backdrop-blur-lg border-white/30 hover:${
               isDarkMode ? 'bg-gray-700/80' : 'bg-white/80'
-            } transition-all duration-300 group hover:scale-105 hover:shadow-lg animate-fade-in cursor-pointer overflow-hidden relative`}
+            } transition-all duration-300 group hover:scale-105 hover:shadow-lg animate-fade-in overflow-hidden relative`}
             style={{ animationDelay: `${index * 100}ms` }}
           >
-            <div 
-              className="absolute inset-0 opacity-10 bg-cover bg-center"
-              style={{ backgroundImage: `url(${kpi.image})` }}
-            />
             <CardContent className="p-4 sm:p-6 relative z-10">
               <div className="flex items-center justify-between mb-3">
                 <div className={`p-2 sm:p-3 rounded-xl ${kpi.bgColor} group-hover:scale-110 transition-transform duration-300`}>
@@ -171,7 +226,8 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
                   </span>
                 </div>
               </div>
-              <div>
+              
+              <div className="mb-4">
                 <p className={`text-xl sm:text-2xl font-bold ${
                   isDarkMode ? 'text-white' : 'text-slate-800'
                 } mb-1`}>{kpi.value}</p>
@@ -181,6 +237,27 @@ export const KPICards = ({ data, isDarkMode }: KPICardsProps) => {
                 <p className={`text-xs ${
                   isDarkMode ? 'text-gray-400' : 'text-slate-500'
                 } mt-1`}>{kpi.description}</p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-1">
+                <Button 
+                  onClick={() => handleKPIClick(kpi.title, kpi.value, kpi.analytics)}
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 text-xs"
+                >
+                  <BarChart3 className="h-3 w-3 mr-1" />
+                  Analytics
+                </Button>
+                <Button 
+                  onClick={() => handleExportData(kpi.title)}
+                  size="sm"
+                  variant="outline"
+                  className="px-2"
+                >
+                  <Download className="h-3 w-3" />
+                </Button>
               </div>
             </CardContent>
           </Card>

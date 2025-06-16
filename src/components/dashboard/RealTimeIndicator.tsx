@@ -30,7 +30,7 @@ export const RealTimeIndicator = ({ lastUpdated, isDarkMode }: RealTimeIndicator
             </div>
             <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-slate-500'}`}>•</span>
             <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-slate-500'}`}>
-              Auto-refresh every 30s
+              Auto-refresh weekly
             </span>
           </div>
           <div className="flex items-center gap-2">

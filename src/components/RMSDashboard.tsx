@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { KPICards } from './dashboard/KPICards';
@@ -10,6 +11,7 @@ import { ResourceTable } from './dashboard/ResourceTable';
 import { FilterPanel } from './dashboard/FilterPanel';
 import { QuickActions } from './dashboard/QuickActions';
 import { RealTimeIndicator } from './dashboard/RealTimeIndicator';
+import { DataImportModal } from './dashboard/DataImportModal';
 import { generateMockResourceData } from '@/utils/mockResourceData';
 import { ResourceData } from '@/types/resource';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,6 +25,7 @@ export const RMSDashboard = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [activeView, setActiveView] = useState<'overview' | 'analytics' | 'resources'>('overview');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [showDataImport, setShowDataImport] = useState(false);
   const [filters, setFilters] = useState({
     department: '',
     status: '',
@@ -31,7 +34,7 @@ export const RMSDashboard = () => {
   });
   const { toast } = useToast();
 
-  // Real-time data updates with 24-hour refresh cycle
+  // Real-time data updates with weekly refresh cycle
   useEffect(() => {
     const loadData = () => {
       setIsLoading(true);
@@ -55,20 +58,20 @@ export const RMSDashboard = () => {
     // Real-time updates every 30 seconds for demo
     const realTimeInterval = setInterval(loadData, 30000);
     
-    // Full refresh every 24 hours
-    const dailyRefreshInterval = setInterval(() => {
-      console.log('Performing 24-hour data refresh...');
+    // Full refresh every week (7 days)
+    const weeklyRefreshInterval = setInterval(() => {
+      console.log('Performing weekly data refresh...');
       loadData();
       toast({
-        title: "Daily Refresh Complete",
+        title: "Weekly Refresh Complete",
         description: "System has been refreshed with the latest data from all sources",
         duration: 5000,
       });
-    }, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+    }, 7 * 24 * 60 * 60 * 1000); // 7 days in milliseconds
 
     return () => {
       clearInterval(realTimeInterval);
-      clearInterval(dailyRefreshInterval);
+      clearInterval(weeklyRefreshInterval);
     };
   }, [toast]);
 
@@ -105,6 +108,17 @@ export const RMSDashboard = () => {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  const handleDataImport = (importedData: ResourceData[]) => {
+    setResourceData(prev => [...prev, ...importedData]);
+    setLastUpdated(new Date());
+    
+    toast({
+      title: "Data Import Successful",
+      description: `Added ${importedData.length} new records to the dashboard`,
+      duration: 3000,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -145,7 +159,11 @@ export const RMSDashboard = () => {
         
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6">
           <div className="xl:col-span-3 space-y-4 sm:space-y-6">
-            <KPICards data={filteredData} isDarkMode={isDarkMode} />
+            <KPICards 
+              data={filteredData} 
+              isDarkMode={isDarkMode} 
+              onDataImport={() => setShowDataImport(true)}
+            />
             
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as any)} className="w-full">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -220,6 +238,13 @@ export const RMSDashboard = () => {
           </div>
         </div>
       </div>
+
+      <DataImportModal
+        isOpen={showDataImport}
+        onClose={() => setShowDataImport(false)}
+        onDataImport={handleDataImport}
+        isDarkMode={isDarkMode}
+      />
     </div>
   );
 };
