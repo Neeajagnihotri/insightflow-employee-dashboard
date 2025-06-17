@@ -1,4 +1,3 @@
-
 export interface ResourceData {
   id: string;
   name: string;
@@ -15,6 +14,10 @@ export interface ResourceData {
   location: string;
   salary: number;
   performanceRating: number;
+  // Additional properties for smart allocation
+  matchScore?: number;
+  skillMatches?: number;
+  recommendationLevel?: 'high' | 'medium' | 'low';
 }
 
 export interface KPIData {

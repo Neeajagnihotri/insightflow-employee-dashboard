@@ -10,6 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 import { ResourceData, ProjectData } from '@/types/resource';
 import { Users, Target, Award, DollarSign, CheckCircle2, AlertCircle } from 'lucide-react';
 
+interface ExtendedResourceData extends ResourceData {
+  matchScore: number;
+  skillMatches: number;
+  recommendationLevel: 'high' | 'medium' | 'low';
+}
+
 interface ProjectAllocationFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,7 +35,7 @@ export const ProjectAllocationForm = ({
 }: ProjectAllocationFormProps) => {
   const [selectedResource, setSelectedResource] = useState('');
   const [selectedProject, setSelectedProject] = useState('');
-  const [filteredResources, setFilteredResources] = useState<ResourceData[]>([]);
+  const [filteredResources, setFilteredResources] = useState<ExtendedResourceData[]>([]);
   const [selectedProjectDetails, setSelectedProjectDetails] = useState<ProjectData | null>(null);
   const { toast } = useToast();
 
@@ -43,7 +49,7 @@ export const ProjectAllocationForm = ({
         setSelectedProjectDetails(project as ProjectData);
         
         // Score resources based on skill match and utilization
-        const scoredResources = availableResources.map(resource => {
+        const scoredResources: ExtendedResourceData[] = availableResources.map(resource => {
           const skillMatches = project.requiredSkills.filter(skill => 
             resource.skills.includes(skill)
           ).length;
@@ -63,17 +69,29 @@ export const ProjectAllocationForm = ({
             matchScore: Math.round(totalScore),
             skillMatches,
             recommendationLevel: totalScore >= 70 ? 'high' : totalScore >= 40 ? 'medium' : 'low'
-          };
+          } as ExtendedResourceData;
         }).sort((a, b) => b.matchScore - a.matchScore);
         
         setFilteredResources(scoredResources);
       } else {
         setSelectedProjectDetails(null);
-        setFilteredResources(availableResources.map(r => ({ ...r, matchScore: 50, skillMatches: 0, recommendationLevel: 'medium' as const })));
+        const defaultScoredResources: ExtendedResourceData[] = availableResources.map(r => ({ 
+          ...r, 
+          matchScore: 50, 
+          skillMatches: 0, 
+          recommendationLevel: 'medium' as const 
+        }));
+        setFilteredResources(defaultScoredResources);
       }
     } else {
-      setFilteredResources(availableResources.map(r => ({ ...r, matchScore: 50, skillMatches: 0, recommendationLevel: 'medium' as const })));
       setSelectedProjectDetails(null);
+      const defaultScoredResources: ExtendedResourceData[] = availableResources.map(r => ({ 
+        ...r, 
+        matchScore: 50, 
+        skillMatches: 0, 
+        recommendationLevel: 'medium' as const 
+      }));
+      setFilteredResources(defaultScoredResources);
     }
   }, [selectedProject, availableResources, projects]);
 
