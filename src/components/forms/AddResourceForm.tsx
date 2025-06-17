@@ -20,10 +20,10 @@ export const AddResourceForm = ({ isOpen, onClose, onSubmit, isDarkMode }: AddRe
     name: '',
     email: '',
     department: '',
-    role: '',
-    experience: '',
+    role: '' as ResourceData['role'] | '',
+    experience: '' as ResourceData['experience'] | '',
     location: '',
-    status: '',
+    status: '' as ResourceData['status'] | '',
     salary: ''
   });
   const { toast } = useToast();
@@ -32,7 +32,13 @@ export const AddResourceForm = ({ isOpen, onClose, onSubmit, isDarkMode }: AddRe
     e.preventDefault();
     
     const resourceData: Partial<ResourceData> = {
-      ...formData,
+      name: formData.name,
+      email: formData.email,
+      department: formData.department,
+      role: formData.role as ResourceData['role'],
+      experience: formData.experience as ResourceData['experience'],
+      location: formData.location,
+      status: formData.status as ResourceData['status'],
       salary: parseInt(formData.salary) || 0,
       utilizationRate: 0,
       performanceRating: 3.0,
@@ -109,7 +115,7 @@ export const AddResourceForm = ({ isOpen, onClose, onSubmit, isDarkMode }: AddRe
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as ResourceData['role'] })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -121,6 +127,8 @@ export const AddResourceForm = ({ isOpen, onClose, onSubmit, isDarkMode }: AddRe
                   <SelectItem value="QA Engineer">QA Engineer</SelectItem>
                   <SelectItem value="Product Manager">Product Manager</SelectItem>
                   <SelectItem value="Engineering Manager">Engineering Manager</SelectItem>
+                  <SelectItem value="Scrum Master">Scrum Master</SelectItem>
+                  <SelectItem value="Data Analyst">Data Analyst</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -129,7 +137,7 @@ export const AddResourceForm = ({ isOpen, onClose, onSubmit, isDarkMode }: AddRe
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="experience">Experience Level</Label>
-              <Select value={formData.experience} onValueChange={(value) => setFormData({ ...formData, experience: value })}>
+              <Select value={formData.experience} onValueChange={(value) => setFormData({ ...formData, experience: value as ResourceData['experience'] })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select level" />
                 </SelectTrigger>
@@ -153,7 +161,7 @@ export const AddResourceForm = ({ isOpen, onClose, onSubmit, isDarkMode }: AddRe
             </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value as ResourceData['status'] })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
