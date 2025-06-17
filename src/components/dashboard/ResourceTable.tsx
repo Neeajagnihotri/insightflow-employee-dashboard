@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, DollarSign } from 'lucide-react';
 import { ResourceData } from '@/types/resource';
 
 interface ResourceTableProps {
@@ -43,6 +43,15 @@ export const ResourceTable = ({ data, isDarkMode = false }: ResourceTableProps) 
     }
   };
 
+  const formatSalary = (salary: number) => {
+    if (salary >= 1000000) {
+      return `$${(salary / 1000000).toFixed(1)}M`;
+    } else if (salary >= 1000) {
+      return `$${(salary / 1000).toFixed(0)}K`;
+    }
+    return `$${salary}`;
+  };
+
   return (
     <Card className={`${
       isDarkMode ? 'bg-gray-800/70' : 'bg-white/70'
@@ -65,6 +74,7 @@ export const ResourceTable = ({ data, isDarkMode = false }: ResourceTableProps) 
                 <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Experience</TableHead>
                 <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Status</TableHead>
                 <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Utilization</TableHead>
+                <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Salary</TableHead>
                 <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Skills</TableHead>
                 <TableHead className={isDarkMode ? 'text-gray-200' : ''}>Location</TableHead>
               </TableRow>
@@ -118,6 +128,14 @@ export const ResourceTable = ({ data, isDarkMode = false }: ResourceTableProps) 
                       <span className={`text-xs font-medium ${
                         isDarkMode ? 'text-gray-200' : 'text-gray-900'
                       }`}>{resource.utilizationRate}%</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <DollarSign className="h-3 w-3 text-green-500" />
+                      <span className={`text-sm font-medium ${
+                        isDarkMode ? 'text-gray-200' : 'text-gray-900'
+                      }`}>{formatSalary(resource.salary)}</span>
                     </div>
                   </TableCell>
                   <TableCell>

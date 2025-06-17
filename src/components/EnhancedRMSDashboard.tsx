@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { EnhancedKPICards } from './dashboard/EnhancedKPICards';
+import { AnalyticsOverview } from './dashboard/AnalyticsOverview';
 import { AddResourceForm } from './forms/AddResourceForm';
 import { AddProjectForm } from './forms/AddProjectForm';
 import { ProjectAllocationForm } from './forms/ProjectAllocationForm';
@@ -11,7 +12,7 @@ import { ResourceTable } from './dashboard/ResourceTable';
 import { FilterPanel } from './dashboard/FilterPanel';
 import { RealTimeIndicator } from './dashboard/RealTimeIndicator';
 import { generateMockResourceData } from '@/utils/mockResourceData';
-import { ResourceData } from '@/types/resource';
+import { ResourceData, ProjectData } from '@/types/resource';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -21,16 +22,60 @@ export const EnhancedRMSDashboard = () => {
   const { user, logout, loading } = useAuth();
   const [resourceData, setResourceData] = useState<ResourceData[]>([]);
   const [filteredData, setFilteredData] = useState<ResourceData[]>([]);
-  const [projects, setProjects] = useState([
-    { id: 'project-1', name: 'E-commerce Platform' },
-    { id: 'project-2', name: 'Mobile Banking App' },
-    { id: 'project-3', name: 'Healthcare Dashboard' },
-    { id: 'project-4', name: 'AI Analytics Tool' }
+  const [projects, setProjects] = useState<ProjectData[]>([
+    { 
+      id: 'project-1', 
+      name: 'E-commerce Platform',
+      clientName: 'TechCorp Inc',
+      engineeringManager: 'Sarah Johnson',
+      status: 'Active',
+      startDate: '2024-01-15',
+      endDate: '2024-06-30',
+      budget: 250000,
+      requiredSkills: ['React', 'Node.js', 'TypeScript', 'AWS', 'MongoDB'],
+      assignedResources: []
+    },
+    { 
+      id: 'project-2', 
+      name: 'Mobile Banking App',
+      clientName: 'FinanceFirst Bank',
+      engineeringManager: 'Mike Chen',
+      status: 'Active',
+      startDate: '2024-02-01',
+      endDate: '2024-08-15',
+      budget: 180000,
+      requiredSkills: ['React Native', 'Python', 'PostgreSQL', 'Docker', 'Security'],
+      assignedResources: []
+    },
+    { 
+      id: 'project-3', 
+      name: 'Healthcare Dashboard',
+      clientName: 'MedTech Solutions',
+      engineeringManager: 'Lisa Wang',
+      status: 'Planning',
+      startDate: '2024-03-01',
+      endDate: '2024-09-30',
+      budget: 320000,
+      requiredSkills: ['Vue.js', 'Java', 'MySQL', 'HIPAA Compliance', 'API Development'],
+      assignedResources: []
+    },
+    { 
+      id: 'project-4', 
+      name: 'AI Analytics Tool',
+      clientName: 'DataDriven Corp',
+      engineeringManager: 'Alex Kumar',
+      status: 'Active',
+      startDate: '2024-01-20',
+      endDate: '2024-07-20',
+      budget: 400000,
+      requiredSkills: ['Python', 'Machine Learning', 'TensorFlow', 'Big Data', 'Docker'],
+      assignedResources: []
+    }
   ]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [activeView, setActiveView] = useState<'overview' | 'resources'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'analytics' | 'resources'>('overview');
   const [filters, setFilters] = useState({
     department: '',
     status: '',
@@ -132,7 +177,20 @@ export const EnhancedRMSDashboard = () => {
   };
 
   const handleAddProject = (project: any) => {
-    setProjects(prev => [...prev, project]);
+    const newProject: ProjectData = {
+      id: `project-${Date.now()}`,
+      name: project.name,
+      clientName: project.clientName,
+      engineeringManager: project.engineeringManager,
+      status: 'Planning',
+      startDate: project.startDate || new Date().toISOString().split('T')[0],
+      endDate: project.endDate,
+      budget: project.budget || 0,
+      requiredSkills: project.requiredSkills || [],
+      assignedResources: []
+    };
+    
+    setProjects(prev => [...prev, newProject]);
     setLastUpdated(new Date());
   };
 
@@ -142,6 +200,13 @@ export const EnhancedRMSDashboard = () => {
         ? { ...resource, status: 'Assigned' as ResourceData['status'], currentProject: allocation.projectName }
         : resource
     ));
+    
+    setProjects(prev => prev.map(project =>
+      project.id === allocation.projectId
+        ? { ...project, assignedResources: [...project.assignedResources, allocation.resourceId] }
+        : project
+    ));
+    
     setLastUpdated(new Date());
   };
 
@@ -217,20 +282,79 @@ export const EnhancedRMSDashboard = () => {
             />
             
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as any)} className="w-full">
-              <TabsList className={`grid w-full sm:w-auto grid-cols-2 ${
+              <TabsList className={`grid w-full sm:w-auto grid-cols-3 ${
                 isDarkMode ? 'bg-gray-800/60' : 'bg-white/60'
               } backdrop-blur-lg`}>
                 <TabsTrigger value="overview" className="text-sm font-medium">Overview</TabsTrigger>
+                <TabsTrigger value="analytics" className="text-sm font-medium">Analytics</TabsTrigger>
                 <TabsTrigger value="resources" className="text-sm font-medium">Resources</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-4 sm:space-y-6">
-                <div className="text-center p-8">
-                  <h3 className="text-xl font-semibold mb-2">Dashboard Overview</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Overview charts and analytics will be displayed here
-                  </p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {/* Quick Stats Cards */}
+                  <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800/70' : 'bg-white/70'} backdrop-blur-lg border-white/30`}>
+                    <h3 className="text-lg font-semibold mb-4">Resource Utilization</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">High Performers</span>
+                        <span className="font-semibold">{filteredData.filter(r => r.performanceRating >= 4.0).length}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Underutilized</span>
+                        <span className="font-semibold">{filteredData.filter(r => r.utilizationRate < 50).length}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Optimal Load</span>
+                        <span className="font-semibold">{filteredData.filter(r => r.utilizationRate >= 70 && r.utilizationRate <= 90).length}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800/70' : 'bg-white/70'} backdrop-blur-lg border-white/30`}>
+                    <h3 className="text-lg font-semibold mb-4">Financial Overview</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Total Payroll</span>
+                        <span className="font-semibold">${(filteredData.reduce((sum, r) => sum + r.salary, 0) / 1000000).toFixed(1)}M</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Avg Salary</span>
+                        <span className="font-semibold">${Math.round(filteredData.reduce((sum, r) => sum + r.salary, 0) / filteredData.length / 1000)}K</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Project Budget</span>
+                        <span className="font-semibold">${(projects.reduce((sum, p) => sum + (p.budget || 0), 0) / 1000000).toFixed(1)}M</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800/70' : 'bg-white/70'} backdrop-blur-lg border-white/30`}>
+                    <h3 className="text-lg font-semibold mb-4">Skill Insights</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Most Demanded</span>
+                        <span className="font-semibold">React</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Skill Gap</span>
+                        <span className="font-semibold text-amber-600">DevOps</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Training Active</span>
+                        <span className="font-semibold">{filteredData.filter(r => r.status === 'Training').length}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="analytics" className="space-y-4 sm:space-y-6">
+                <AnalyticsOverview 
+                  resourceData={filteredData}
+                  projectData={projects}
+                  isDarkMode={isDarkMode}
+                />
               </TabsContent>
 
               <TabsContent value="resources" className="space-y-4 sm:space-y-6">

@@ -24,10 +24,26 @@ export interface KPIData {
   onLeaveResources: number;
   inTrainingResources: number;
   averageUtilization: number;
+  averageSalary: number;
+  totalProjectCost: number;
   trends: {
     totalChange: number;
     availableChange: number;
     assignedChange: number;
     utilizationChange: number;
+    salaryTrend: number;
   };
+}
+
+export interface ProjectData {
+  id: string;
+  name: string;
+  clientName?: string;
+  engineeringManager?: string;
+  status: 'Planning' | 'Active' | 'On Hold' | 'Completed';
+  startDate: string;
+  endDate?: string;
+  budget?: number;
+  requiredSkills: string[];
+  assignedResources: string[];
 }
